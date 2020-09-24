@@ -9,7 +9,7 @@ const string names[] = {"read", "write", "id", "literal", "gets",
                        "<=", "<>", "<", ">=", ">"};
 
 static token input_token;
-string ast = "";
+
 
 void error(){
     cout << "syntax error************************\n" << endl;
@@ -21,40 +21,33 @@ void match(token expected){
         cout << "matched " << names[input_token];
         if(input_token == t_id || input_token == t_literal){
             cout << ": " << token_image;
-            ast = ast + "\"" + token_image + "\" ";
         }
-        if(input_token == t_equal) ast = ast + "= ";
-        if(input_token == t_lessequal) ast = ast + "<= ";
-        if(input_token == t_notequal) ast = ast + "<> ";
-        if(input_token == t_less) ast = ast + "< ";
-        if(input_token == t_greaterequal) ast = ast + ">= ";
-        if(input_token == t_greater) ast = ast + "> ";
         cout << endl;
         input_token = scan();
     }
     else error();
 }
 
-void program ();
-void stmt_list ();
-void stmt ();
-void cond(); // condition E ro E
-void expr ();
-void term ();
-void term_tail ();
-void factor ();
-void factor_tail ();
-void rela_op ();// relationap operation for =|<>|<|>|<=|>=
-void add_op ();
-void mul_op ();
+string program ();
+string stmt_list ();
+string stmt ();
+string cond(); // condition E ro E
+string expr ();
+string term ();
+string term_tail (string term);
+string factor ();
+string factor_tail (string factor);
+string rela_op ();// relationap operation for =|<>|<|>|<=|>=
+string add_op ();
+string mul_op ();
 
 /*
 The square brackets delimit lists, which have an arbitrary number of elements.  
 The parentheses delimit tuples (structs), which have a fixed number of fields.
 */
-void program () {
-    ast += "(";
-    ast += "program";
+string program () {
+    string ast = "";
+    ast += "(program ";
     switch (input_token) {
         case t_id:
         case t_read:
@@ -63,18 +56,20 @@ void program () {
         case t_while:
         case t_eof:
             cout << "predict program --> stmt_list eof" << endl;
-            ast += "[";
-            stmt_list ();
-            ast += "]";
+            ast += "[ ";
+            ast += stmt_list ();
+            ast += "] ";
             match (t_eof);
             break;
         default: 
             error ();
     }
     ast += ")";
+    return ast;
 }
 
-void stmt_list () {
+string stmt_list () {
+    string ast = "";
     switch (input_token) {
         case t_id:
         case t_read:
@@ -82,177 +77,198 @@ void stmt_list () {
         case t_if:
         case t_while:
             cout << "predict stmt_list -->stmt stmt_list" << endl;
-            ast += "(";
-            stmt ();
-            ast += ")";
-            stmt_list ();
+            ast += stmt ();
+            ast += stmt_list ();
             break;
         case t_eof:
             cout << "predict stmt_list --> epsilon" << endl;
+            return "";
             break;          /* epsilon production */
         default: ;
     }
+    return ast;
 }
 
-void stmt () {
+string stmt () {
+    string ast = "";
+    ast += "(";
     switch (input_token) {
         case t_id:
             cout << "predict stmt --> id gets expr" << endl;
-            ast += ":= ";
             match (t_id);
+            ast = ast + ":= " + "\"" +  token_image + "\"";
             match (t_gets);
-            //ast += "(";
-            expr ();
-            //ast += ")";
+            ast += expr ();
             break;
         case t_read:
             cout << "predict stmt --> read id" << endl;
-            ast += "read ";
             match (t_read);
+            ast += "read ";
             match (t_id);
-
+            ast = ast + "\"" + token_image + "\"";
             break;
         case t_write:
             cout << "predict stmt --> write expr" << endl;
-            ast += "write ";
             match (t_write);
-            //ast += "(";
-            expr ();
-            //ast += ")";
+            ast += "write ";
+            ast += expr ();
             break;
         case t_if:
             cout << "predict stmt --> if condition stmt_list end" << endl;
-            ast += "if";
-            match (t_if);
+            match (t_if); 
+            ast += "if ";
             ast += "(";
-            cond ();
+            ast += cond ();
             ast += ")";
             ast += "[";
-            stmt_list ();
+            ast += stmt_list ();
             ast += "]";
             match (t_end);
             break;
         case t_while:
             cout << "predict stmt --> while condition stmt_list end" << endl;
-            ast += "while";
             match (t_while);
+            ast += "while";
             ast += "(";
-            cond ();
+            ast += cond ();
             ast += ")";
             ast += "[";
-            stmt_list ();
+            ast += stmt_list ();
             ast += "]";
             match (t_end);
             break;
         default: error ();
     }
+    ast += ")";
+    return ast;
 }
 
 //comdition expression ro expression
-void cond (){
+string cond (){
+    string ast = "";
+    string temp1 = "";
+    string temp2 = "";
+    string temp3 = "";
     switch (input_token) {
         case t_id:
         case t_literal:
         case t_lparen:
-            cout << "predict comp --> expr rela_op expr" << endl;
-            //ast += "(";
-            expr ();
-            //ast += ")";
-            rela_op ();//将来改成 ro E E
-            //ast += "(";
-            expr ();
-            //ast += ")";
+            cout << "predict comp --> expr rela_op expr" << endl;        
+            temp1 += expr ();
+            temp2 += rela_op ();
+            temp3 += expr ();
+            ast += "(" + temp2 + temp1 + temp3 + ")";
             break;
         default: error ();
     }
+    return ast;
 }
 
-void expr () {
+string expr () {
+    string ast = "";
     switch (input_token) {
         case t_id:
         case t_literal:
         case t_lparen:
             cout << "predict expr --> term term_tail" << endl;
-            term ();
-            term_tail ();
+            //ast += "(";
+            //ast += term ();
+            ast += term_tail (term ());
+            //ast += ")";
             break;
         default: error ();
     }
+    return ast;
 }
 
-void term () {
+string term () {
+    string ast = "";
     switch (input_token) {
         case t_id:
         case t_literal:
         case t_lparen:
             cout << "predict term --> factor factor_tail" << endl;
-            ast += "(";
-            factor ();
-            ast += ")";
-            factor_tail ();
+            //ast += "(";
+            //ast += factor ();
+            ast += factor_tail (factor ());
+            //ast += ")";
             break;
         default: error ();
     }
+    return ast;
 }
 
-void term_tail () {
+string term_tail (string te) {
+    string ast = "";
+    ast += "(";
     switch (input_token) {
         case t_add:
         case t_sub:
             cout << "predict term_tail --> add_op term term_tail" << endl;
-            add_op ();
-            term ();
-            term_tail ();
+            ast += add_op ();
+            ast += te;
+            //ast += term ();
+            ast += term_tail (term ());
             break;
         case t_rparen:
         case t_id:
         case t_read:
         case t_write:
+        case t_if:
+        case t_while:
+        case t_equal:
+        case t_notequal:
+        case t_less:
+        case t_greater:
+        case t_lessequal:
+        case t_greaterequal:
         case t_eof:
             cout << "predict term_tail --> epsilon" << endl;
-            break;          /* epsilon production */
+            return te;         /* epsilon production */
         default: ;
     }
+    ast += ")";
+    return ast;
 }
 
-void factor () {
+string factor () {
+    string ast = "";
     switch (input_token) {
         case t_literal:
             cout << "predict factor --> literal"<< endl;
-            //ast += "(";
-            ast += "num ";
             match (t_literal);
-            //ast += ")";
+            ast += "(";
+            ast = ast + "num " + "\"" + token_image + "\"";
+            ast += ")";
             break;
         case t_id :
             cout << "predict factor --> id"<< endl;
-            //ast += "(";
-            ast += "id ";
             match (t_id);
-            //ast += ")";
+            ast += "(";
+            ast = ast + "id " + "\"" + token_image + "\"";
+            ast += ")";
             break;
         case t_lparen:
             cout << "predict factor --> lparen expr rparen"<< endl;
             match (t_lparen);
-            ast += "(";
-            expr ();
-            ast += ")";
+            ast += expr ();
             match (t_rparen);
             break;
         default: error ();
     }
+    return ast;
 }
 
-void factor_tail () {
+string factor_tail (string fa) {
+    string ast = "";
+    ast += "(";
     switch (input_token) {
         case t_mul:
         case t_div:
             cout << "predict factor_tail --> mul_op factor factor_tail" << endl;
-            mul_op ();
-            ast += "(";
-            factor ();
-            ast += ")";
-            factor_tail ();
+            ast += mul_op ();
+            ast += fa;
+            ast += factor_tail (factor ());
             break;
         case t_add:
         case t_sub:
@@ -260,78 +276,100 @@ void factor_tail () {
         case t_id:
         case t_read:
         case t_write:
+        case t_if:
+        case t_while:
+        case t_equal:
+        case t_notequal:
+        case t_less:
+        case t_greater:
+        case t_lessequal:
+        case t_greaterequal:
         case t_eof:
             cout << "predict factor_tail --> epsilon" << endl;
-            break;       /* epsilon production */
+            return fa;       /* epsilon production */
         default: ;
     }
+    ast += ")";
+    return ast;
 }
 
-void rela_op (){
+string rela_op (){
+    string ast = "";
     switch (input_token) {
         case t_equal:
             cout << "predict rela_op --> equal" << endl;
             match (t_equal);
+            ast += "= ";
             break;
         case t_notequal:
             cout << "predict rela_op --> not_equal" << endl;
             match (t_notequal);
+            ast += "<> ";
             break;
         case t_less:
             cout << "predict rela_op --> less" << endl;
             match (t_less);
+            ast += "< ";
             break;
         case t_greater:
             cout << "predict rela_op --> greater" << endl;
             match (t_greater);
+            ast += "> ";
             break;
         case t_lessequal:
             cout << "predict rela_op --> less_equal" << endl;
             match (t_lessequal);
+            ast += "<= ";
             break;
         case t_greaterequal:
             cout << "predict rela_op --> greater_equal" << endl;
             match (t_greaterequal);
+            ast += ">= ";
             break;
         default: error ();
     }
+    return ast;
 }
 
-void add_op () {
+string add_op () {
+    string ast = "";
     switch (input_token) {
         case t_add:
             cout << "predict add_op --> add" << endl;
-            ast += "+ ";
             match (t_add);
+            ast += "+ ";            
             break;
         case t_sub:
             cout << "predict add_op --> sub" << endl;
-            ast += "- ";
             match (t_sub);
+            ast += "- ";            
             break;
         default: error ();
     }
+    return ast;
 }
 
-void mul_op () {
+string mul_op () {
+    string ast = "";
     switch (input_token) {
         case t_mul:
             cout << "predict mul_op --> mul" << endl;
-            ast += "* ";
             match (t_mul);
+            ast += "* ";            
             break;
         case t_div:
             cout << "predict mul_op --> div" << endl;
-            ast += "/ ";
             match (t_div);
+            ast += "/ ";            
             break;
         default: error ();
     }
+    return ast;
 }
 
 int main () {
     input_token = scan ();
-    program ();
-    cout << ast << endl;
+    string AST = program ();
+    cout << AST << endl;
     return 0;
 }
