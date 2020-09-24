@@ -95,8 +95,8 @@ string stmt () {
     switch (input_token) {
         case t_id:
             cout << "predict stmt --> id gets expr" << endl;
-            match (t_id);
             ast = ast + ":= " + "\"" +  token_image + "\"";
+            match (t_id);
             match (t_gets);
             ast += expr ();
             break;
@@ -104,8 +104,8 @@ string stmt () {
             cout << "predict stmt --> read id" << endl;
             match (t_read);
             ast += "read ";
-            match (t_id);
             ast = ast + "\"" + token_image + "\"";
+            match (t_id);
             break;
         case t_write:
             cout << "predict stmt --> write expr" << endl;
@@ -117,9 +117,7 @@ string stmt () {
             cout << "predict stmt --> if condition stmt_list end" << endl;
             match (t_if); 
             ast += "if ";
-            ast += "(";
             ast += cond ();
-            ast += ")";
             ast += "[";
             ast += stmt_list ();
             ast += "]";
@@ -129,9 +127,7 @@ string stmt () {
             cout << "predict stmt --> while condition stmt_list end" << endl;
             match (t_while);
             ast += "while";
-            ast += "(";
             ast += cond ();
-            ast += ")";
             ast += "[";
             ast += stmt_list ();
             ast += "]";
@@ -222,6 +218,7 @@ string term_tail (string te) {
         case t_greater:
         case t_lessequal:
         case t_greaterequal:
+        case t_end:
         case t_eof:
             cout << "predict term_tail --> epsilon" << endl;
             return te;         /* epsilon production */
@@ -236,17 +233,17 @@ string factor () {
     switch (input_token) {
         case t_literal:
             cout << "predict factor --> literal"<< endl;
-            match (t_literal);
             ast += "(";
             ast = ast + "num " + "\"" + token_image + "\"";
-            ast += ")";
+            ast += ")";            
+            match (t_literal);
             break;
         case t_id :
             cout << "predict factor --> id"<< endl;
-            match (t_id);
             ast += "(";
             ast = ast + "id " + "\"" + token_image + "\"";
             ast += ")";
+            match (t_id);
             break;
         case t_lparen:
             cout << "predict factor --> lparen expr rparen"<< endl;
@@ -284,6 +281,7 @@ string factor_tail (string fa) {
         case t_greater:
         case t_lessequal:
         case t_greaterequal:
+        case t_end:
         case t_eof:
             cout << "predict factor_tail --> epsilon" << endl;
             return fa;       /* epsilon production */
