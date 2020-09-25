@@ -12,11 +12,16 @@ using namespace std;
 
 char token_image[MAX_TOKEN_LEN];
 
+int line_num = 1;
+
 token scan(){
     static int c = ' ';
     int i = 0;
 
     while(isspace(c)){
+        if(c == '\n') {
+            line_num++;
+        }
         c = cin.get();
     }
     if(c == EOF)

@@ -11,3 +11,4 @@ typedef enum {t_read, t_write, t_id, t_literal, t_gets,
 extern char token_image[MAX_TOKEN_LEN];
 
 extern token scan();
+extern int line_num;
