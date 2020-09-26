@@ -16,6 +16,7 @@ queue<string> error_stack;
 map<string, string> fir_set;
 map<string, string> fol_set;
 
+// throw a simple error
 void error(){
     throw "Unexpected exception";
 }
@@ -35,6 +36,7 @@ void match(token expected){
     }
 }
 
+// generate the first and follow sets of all symbols
 void gen_sets() {
     fir_set["SL"] = "id, read, write, if, while,";
     fir_set["S"] = "id, read, write, if, while";
@@ -63,7 +65,7 @@ void gen_sets() {
     fol_set["C"] = "id, read, write, if, while";
 }
 
-// Check whether a token in a fir_set specified by a symbol
+// Check if the next token is in the first _set of current symbol
 bool checkfirst (token next_token, string cur_symbol, map<string, string> fir_set) {
     string s = fir_set[cur_symbol];
     string tok_s = names[next_token];
@@ -73,7 +75,7 @@ bool checkfirst (token next_token, string cur_symbol, map<string, string> fir_se
         return false;
 }
 
-// Check whether a token in a follow set specified by a symbol
+// Check if the next token is in the follow _set of current symbol
 bool checkfollow (token next_token, string cur_symbol, map<string, string> fol_set) {
     string s = fol_set[cur_symbol];
     string tok_s = names[next_token];
@@ -121,10 +123,13 @@ string program () {
             default: 
                 error();
         }
+    // here we implemented the exception-based error recovery 
     } catch (const char* &e) {
+        // record the error message
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
+            // take in the next token
             next_token = scan ();
             if (checkfirst (next_token, "P", fir_set)) {
                 input_token = next_token;
@@ -659,10 +664,6 @@ string mul_op () {
 }
 
 int main () {
-    // input_token = scan ();
-    // string AST = program ();
-    // cout << AST << endl;
-    // return 0;
     gen_sets ();
     input_token = scan ();
     string AST = program ();
@@ -672,7 +673,7 @@ int main () {
             cout << error_stack.front () << endl;
             error_stack.pop ();
         }
-        // cout << AST << endl;
+        cout << AST << endl;
     } else {
       cout << AST << endl;
     }

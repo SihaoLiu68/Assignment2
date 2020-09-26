@@ -1,4 +1,4 @@
-PP n
+read n
    cp := 2
    while n > 0
        found := 0
