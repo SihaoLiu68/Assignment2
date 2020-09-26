@@ -26,7 +26,7 @@ token scan(){
     }
     if(c == EOF)
         return t_eof;
-    if(isalpha(c)){
+    if(isalpha(c)){//find out what the string is and return its token
         do{
             token_image[i++] = c;
             if(i >= MAX_TOKEN_LEN){
@@ -50,7 +50,7 @@ token scan(){
         } while (isdigit(c));
         token_image[i] = '\0';
         return t_literal;        
-    } else switch (c){
+    } else switch (c){//extended with relational operations '=', '<>', '<=', '<', '>', '>='
         case ':':
             if ((c = cin.get()) != '=') {
                 cout << stderr << "error for :=\n";
@@ -87,7 +87,7 @@ token scan(){
                 return t_greater;
             }
             break;
-         case '$':
+         case '$'://extended for test.txt that ends with $$
             if((c = cin.get()) != '$'){
                 cerr << "error for $\n";
                 exit(1);

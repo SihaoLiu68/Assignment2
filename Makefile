@@ -1,3 +1,6 @@
+test: parse
+	./parse < test.txt
+
 parse: parse.o scan.o
 	g++ -o parse parse.o scan.o
 
