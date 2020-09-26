@@ -72,6 +72,7 @@ void gen_sets() {
 bool checkfirst (token next_token, string cur_symbol, map<string, string> fir_set) {
     string s = fir_set[cur_symbol];
     string tok_s = names[next_token];
+    //find if given token s is found in the first set of the current symbol
     if (s.find(tok_s) != string::npos){
         return true;
     } 
@@ -82,6 +83,7 @@ bool checkfirst (token next_token, string cur_symbol, map<string, string> fir_se
 bool checkfollow (token next_token, string cur_symbol, map<string, string> fol_set) {
     string s = fol_set[cur_symbol];
     string tok_s = names[next_token];
+    //find if given token s is found in the follow set of the current symbol
     if (s.find(tok_s) != string::npos){
         return true;
     } 
@@ -135,14 +137,18 @@ string program () {
         while (true) {
             // take in the next token
             next_token = scan ();
+            // check if in the first set
             if (checkfirst (next_token, "P", fir_set)) {
                 input_token = next_token;
+                // start over
                 program ();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "P", fol_set)) {
                 input_token = next_token;
                 return "";
             } else {
+            //continue to find the next token
                 continue;
             }
         }
@@ -175,15 +181,15 @@ string stmt_list () {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << " Entered  sl ";
+            // take in next token
             next_token = scan ();
-            cout << names[input_token];
-            cout << names[next_token];
+            // check if in the first set
             if (checkfirst (next_token, "SL", fir_set)) {
                 input_token = next_token;
                 cout << names[next_token];
                 stmt_list ();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "SL", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -243,12 +249,13 @@ string stmt() {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  s";
             next_token = scan ();
+            // check if in the first set
             if (checkfirst (next_token, "S", fir_set)) {
                 input_token = next_token;
                 stmt();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "S", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -283,12 +290,13 @@ string cond (){
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  c";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "C", fir_set)) {
                 input_token = next_token;
                 cond();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "C", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -316,12 +324,13 @@ string expr () {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  E";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "E", fir_set)) {
                 input_token = next_token;
                 expr();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "E", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -349,12 +358,13 @@ string term () {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  T";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "T", fir_set)) {
                 input_token = next_token;
                 term();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "T", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -400,12 +410,13 @@ string term_tail (string te) {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "TT", fir_set)) {
                 input_token = next_token;
                 term_tail (te);
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "TT", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -445,12 +456,13 @@ string factor () {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  factor";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "F", fir_set)) {
                 input_token = next_token;
                 factor ();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "F", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -498,12 +510,13 @@ string factor_tail (string fa) {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  factor ta";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "FT", fir_set)) {
                 input_token = next_token;
                 factor_tail (fa);
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "FT", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -551,12 +564,13 @@ string rela_op (){
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  ro";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "ro", fir_set)) {
                 input_token = next_token;
                 rela_op ();
                 return "";
+             // check if in the follow set
             } else if (checkfollow (next_token, "ro", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -587,13 +601,14 @@ string add_op () {
     } catch (const char* &e) {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
-        while (true) {
-            cout << "Entered  ao";
+        while (true) {        
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "ao", fir_set)) {
                 input_token = next_token;
                 add_op ();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "ao", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -624,12 +639,13 @@ string mul_op () {
         string emgs = "[Error] Line " + to_string(line_num) + ": " + token_image + " is unexpected.\n";
         error_stack.push (emgs);
         while (true) {
-            cout << "Entered  mo";
             next_token = scan();
+            // check if in the first set
             if (checkfirst (next_token, "mo", fir_set)) {
                 input_token = next_token;
                 mul_op ();
                 return "";
+            // check if in the follow set
             } else if (checkfollow (next_token, "mo", fol_set)) {
                 input_token = next_token;
                 return "";
@@ -646,13 +662,12 @@ int main () {
     gen_sets ();
     input_token = scan ();
     string AST = program ();//starts the program and return the linear, parenthesized syntax tree and save in AST
-
-    if (!error_stack.empty ()) {
+     
+    if (!error_stack.empty ()) { // print the error stack if it is not empty
         while (!error_stack.empty ()){
             cout << error_stack.front () << endl;
             error_stack.pop ();
         }
-        cout << AST << endl;
     } else {
       cout << AST << endl;
     }
